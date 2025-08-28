@@ -1,0 +1,27 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using Bogus
+<a href="counter">Counter</a>
+<mTable.Table ColHeadings="colHeadings" RowData="rowData" />
+
+@code {
+
+	string[] colHeadings = [
+		nameof(Faker.Name),
+		nameof(Faker.Internet),
+		nameof(Faker.Phone),
+		nameof(Faker.Address),
+		nameof(Faker.Company),
+		nameof(Faker.Date),
+		nameof(Faker.Commerce),
+		nameof(Faker.Random),
+	];
+	string[][] rowData = [];
+
+	protected override void OnInitialized()
+	{
+		var generator = new StringArrayGenerator();
+		rowData = generator.GenerateCustomStringArray(1000, 8);
+		base.OnInitialized();
+	}
+}

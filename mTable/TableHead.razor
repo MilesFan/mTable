@@ -1,0 +1,13 @@
+﻿<thead>
+	<tr>
+	@foreach (var heading in ColHeadings)
+	{
+		<th>@heading</th>
+	}
+	</tr>
+</thead>
+
+@code {
+	[Parameter, EditorRequired]
+	public required string[] ColHeadings { get; set; }
+}

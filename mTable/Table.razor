@@ -1,0 +1,22 @@
+﻿<table id="@tableId" style="table-layout:fixed; font-size:12px;">
+    <colgroup>
+    @for(int i=0; i<ColHeadings.Length; i++)
+    {
+        <col />
+    }
+    </colgroup>
+    <TableHead ColHeadings="ColHeadings" />
+    <TableBody RowData="RowData" TableId="@tableId" />
+    <TableFooter />
+</table>
+
+@code {
+    [Parameter, EditorRequired]
+    public required string[] ColHeadings { get; set; }
+
+    [Parameter, EditorRequired]
+    public required string[][] RowData { get; set; }
+
+    private string tableId = "table_" + Guid.NewGuid().ToString();
+
+}

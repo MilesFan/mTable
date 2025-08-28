@@ -1,0 +1,28 @@
+﻿table {
+    font-size:12px;
+    border-collapse: collapse;
+    border: 1px solid #dee2e6;
+}
+
+::deep th, ::deep td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
+    border: 1px solid #dee2e6;
+    padding:4px;
+}
+    ::deep td input {
+        width: 100%;
+        /*width: -webkit-fill-available;*/
+        padding: 0;
+        margin: 0;
+        background-color: lightskyblue;
+        border: none;
+    }
+
+::deep th {
+    background-color: #f8f9fa;
+    font-weight: 700;
+    color: #212529;
+}

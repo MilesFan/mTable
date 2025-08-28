@@ -1,0 +1,83 @@
+﻿@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@inject IJSRuntime js
+@implements IAsyncDisposable
+
+<tbody>
+    <Virtualize Context="row" OverscanCount="200" ItemsProvider="LoadItems" SpacerElement="tr">
+        <ItemContent>
+            <tr @key="row.GetHashCode()">
+                @for (int colIdx=0; colIdx<row.Length; colIdx++)
+                {
+                    int _rowIdx = row.GetHashCode();
+                    bool editable = rowIdxInEdit == _rowIdx && colIdxInEdit == colIdx;
+                    if (editable)
+                    {
+                        <td data-rowidx="@_rowIdx" data-colidx="@colIdx">
+                            <input type="text" value="@row[colIdx]" />
+                        </td>
+                    }
+                    else
+                    {
+                        <td data-rowidx="@_rowIdx" data-colidx="@colIdx">@row[colIdx]</td>
+                    }
+                }
+            </tr>
+        </ItemContent>
+        <Placeholder>
+            <tr><td colspan="9999" style="text-align:center; background-color:#f0f0f0;">Loading...</td></tr>
+        </Placeholder>
+        <EmptyContent>
+            <tr><td colspan="9999" style="text-align:center;">No Data</td></tr>
+        </EmptyContent>
+    </Virtualize>
+</tbody>
+
+@code {
+    [Parameter, EditorRequired]
+    public required string[][] RowData { get; set; }
+
+    [Parameter, EditorRequired]
+    public required string TableId { get; set; }
+
+    private IJSObjectReference? moduleTask;
+    private DotNetObjectReference<TableBody>? dotNetObject;
+
+    private long? rowIdxInEdit;
+    private long? colIdxInEdit;
+
+    private async ValueTask<ItemsProviderResult<string[]>> LoadItems(ItemsProviderRequest request)
+    {
+        var totalItems = RowData.Length;
+        var numItems = Math.Min(request.Count, totalItems - request.StartIndex);
+        var items = RowData.Skip(request.StartIndex).Take(numItems);
+        await Task.Delay(500);
+        return new ItemsProviderResult<string[]>(items, totalItems);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (moduleTask != null)
+        {
+            await moduleTask.DisposeAsync();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotNetObject = DotNetObjectReference.Create(this);
+            moduleTask = await js.InvokeAsync<IJSObjectReference>("import", "./_content/mTable/table.js");
+            await moduleTask.InvokeVoidAsync("initTable", dotNetObject, TableId);
+        }
+    }
+
+    [JSInvokable]
+    public Task OnTableCellDblClick(long? RowIdInEdit, long? ColIdInEdit)
+    {
+        rowIdxInEdit = RowIdInEdit;
+        colIdxInEdit = ColIdInEdit;
+        return InvokeAsync(StateHasChanged);
+    }
+}
